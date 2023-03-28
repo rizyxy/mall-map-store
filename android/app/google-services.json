@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "198927518031",
+    "project_id": "mallmap-2500d",
+    "storage_bucket": "mallmap-2500d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:198927518031:android:f6d23ad22bce3b5335dd3a",
+        "android_client_info": {
+          "package_name": "com.example.mallmap_store"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "198927518031-bi301amfbpj6766badb6b8bt6he6qaui.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD6w8W8kP7awysKsSq1F_aDacfcZmQ7APY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "198927518031-bi301amfbpj6766badb6b8bt6he6qaui.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
