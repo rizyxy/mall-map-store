@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:mallmap_store/model/store.dart';
 
-class StoreCRUD {
+class StoreRepository {
   static FirebaseFirestore firestore = FirebaseFirestore.instance;
 
   static CollectionReference store = firestore.collection('stores');

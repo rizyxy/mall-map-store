@@ -8,7 +8,7 @@ class Logo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      children: <Widget>[
+      children: const <Widget>[
         Text("MALL"),
         Text(
           "MAP",

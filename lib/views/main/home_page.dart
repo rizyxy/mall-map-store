@@ -1,118 +1,134 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter/src/widgets/placeholder.dart';
-import 'package:mallmap_store/database/item_crud.dart';
-import 'package:mallmap_store/model/item.dart';
-import 'package:mallmap_store/views/auth/profile_page.dart';
-import 'package:mallmap_store/views/main/create_item_page.dart';
-import 'package:mallmap_store/widgets/item_card.dart';
-import 'package:mallmap_store/widgets/layout/main_layout.dart';
 
-class HomePage extends StatelessWidget {
-  HomePage({super.key});
+import 'package:mallmap_store/model/product.dart';
+import 'package:mallmap_store/repository/product_repository.dart';
+import 'package:mallmap_store/widgets/widgets.dart';
 
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+
+  String query = "";
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: MainLayout(
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "Welcome Back",
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => ProfilePage())),
-                    child: Icon(Icons.person),
-                  )
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              TextFormField(
-                style: TextStyle(fontSize: 15),
-                decoration: InputDecoration(
-                    isDense: true,
-                    hintText: "Search item",
-                    hintStyle: TextStyle(fontSize: 15),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(15))),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "ALL ITEMS",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                  InkWell(
-                    onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CreateItemPage())),
-                    child: Text(
-                      "CREATE ITEM",
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        body: MainLayout(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "Welcome Back",
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              StreamBuilder(
-                  stream: ItemCRUD.items
-                      .where('storeId',
-                          isEqualTo: FirebaseAuth.instance.currentUser!.uid)
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      if (snapshot.data!.size != 0) {
-                        return _buildItems(snapshot);
-                      } else {
-                        return Center(child: Text("No Items Yet"));
+                    InkWell(
+                      onTap: () => Navigator.pushNamed(context, '/profile'),
+                      child: const Icon(Icons.person),
+                    )
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                TextFormField(
+                  controller: _searchController,
+                  onChanged: (value) {
+                    setState(() {
+                      query = value;
+                    });
+                  },
+                  style: const TextStyle(fontSize: 15),
+                  decoration: InputDecoration(
+                      isDense: true,
+                      hintText: "Search products",
+                      hintStyle: const TextStyle(fontSize: 15),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(15))),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      "ALL PRODUCTS",
+                      style: TextStyle(color: Colors.grey),
+                    ),
+                    InkWell(
+                      onTap: () =>
+                          Navigator.pushNamed(context, '/create-product'),
+                      child: const Text(
+                        "CREATE PRODUCT",
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                StreamBuilder(
+                    stream: ProductRepository.products
+                        .where('storeId',
+                            isEqualTo: FirebaseAuth.instance.currentUser!.uid)
+                        .snapshots(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if (snapshot.data!.size != 0) {
+                          List<Product> products = snapshot.data!.docs
+                              .map((e) => Product(
+                                  productId: e.id,
+                                  storeId: e.get('storeId'),
+                                  pictureUrl: e.get('pictureUrl'),
+                                  name: e.get('name'),
+                                  description: e.get('description'),
+                                  price: e.get('price')))
+                              .where((element) => element.name.contains(query))
+                              .toList();
+
+                          return GridView.builder(
+                              itemCount: products.length,
+                              shrinkWrap: true,
+                              gridDelegate:
+                                  const SliverGridDelegateWithFixedCrossAxisCount(
+                                      childAspectRatio: 0.8, crossAxisCount: 2),
+                              itemBuilder: (context, index) => ItemCard(
+                                  itemDoc: products[index].productId!,
+                                  itemPic: products[index].pictureUrl,
+                                  itemName: products[index].name,
+                                  itemPrice: products[index].price));
+                        } else {
+                          return const Text(
+                            "No Product Yet",
+                            textAlign: TextAlign.center,
+                          );
+                        }
                       }
-                    } else {
-                      return CircularProgressIndicator();
-                    }
-                  })
-            ],
+
+                      return const Center(child: CircularProgressIndicator());
+                    })
+              ],
+            ),
           ),
         ),
       ),
-    );
-  }
-
-  GridView _buildItems(AsyncSnapshot<QuerySnapshot<Object?>> snapshot) {
-    return GridView.count(
-      crossAxisCount: 2,
-      shrinkWrap: true,
-      crossAxisSpacing: 5,
-      mainAxisSpacing: 5,
-      childAspectRatio: 0.7,
-      children: snapshot.data!.docs
-          .map((e) => ItemCard(
-              itemDoc: e.id,
-              itemPic: e.get('itemPicture'),
-              itemName: e.get('itemName'),
-              itemPrice: e.get('itemPrice')))
-          .toList(),
     );
   }
 }
