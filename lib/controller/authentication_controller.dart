@@ -6,28 +6,35 @@ class AuthenticationController extends ChangeNotifier {
 
   bool get isLoading => _isLoading;
 
-  Future login(String email, String password) async {
+  Future<AuthResult> login(String email, String password) async {
+    late AuthResult authResult;
     try {
       _isLoading = true;
       notifyListeners();
 
-      await Authentication.login(email, password);
+      authResult = await Authentication.login(email, password);
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+
+    return authResult;
   }
 
-  Future register(String storeName, String storeLocation, String email,
-      String password) async {
+  Future<AuthResult> register(String storeName, String storeLocation,
+      String email, String password) async {
+    late AuthResult authResult;
     try {
       _isLoading = true;
       notifyListeners();
 
-      await Authentication.register(storeName, storeLocation, email, password);
+      authResult = await Authentication.register(
+          storeName, storeLocation, email, password);
     } finally {
       _isLoading = false;
       notifyListeners();
     }
+
+    return authResult;
   }
 }

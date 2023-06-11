@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mallmap_store/services/authentication.dart';
+import 'package:mallmap_store/utils/validator/auth_validator.dart';
 import 'package:mallmap_store/widgets/common/logo.dart';
 import 'package:mallmap_store/widgets/form/normal_text_form_field.dart';
 import 'package:mallmap_store/widgets/layout/main_layout.dart';
@@ -8,6 +9,7 @@ class ForgotPage extends StatelessWidget {
   ForgotPage({super.key});
 
   final TextEditingController _emailController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,19 +39,27 @@ class ForgotPage extends StatelessWidget {
                   'assets/images/padlock.png',
                 ),
               ),
-              NormalTextFormField(
-                  controller: _emailController, hintText: 'Email Address'),
+              Form(
+                key: _formKey,
+                child: NormalTextFormField(
+                    validator: (value) =>
+                        AuthenticationValidator.validateEmail(value),
+                    controller: _emailController,
+                    hintText: 'Email Address'),
+              ),
               const SizedBox(
                 height: 10,
               ),
               InkWell(
                 onTap: () async {
-                  Authentication.resetPassword(_emailController.text).then(
-                      (value) => showDialog(
-                          barrierDismissible: false,
-                          context: context,
-                          builder: (context) =>
-                              _buildConfirmationDialog(context)));
+                  if (_formKey.currentState!.validate()) {
+                    Authentication.resetPassword(_emailController.text).then(
+                        (value) => showDialog(
+                            barrierDismissible: false,
+                            context: context,
+                            builder: (context) =>
+                                _buildConfirmationDialog(context)));
+                  }
                 },
                 child: Ink(
                   decoration: BoxDecoration(

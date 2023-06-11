@@ -67,7 +67,7 @@ class EditItemPage extends StatelessWidget {
                                       ProductValidator.validateName(value),
                                   controller: _nameController
                                     ..text = snapshot.data!.get('name'),
-                                  hintText: "Item Name"),
+                                  hintText: "Product Name"),
                               const SizedBox(
                                 height: 20,
                               ),
@@ -78,7 +78,7 @@ class EditItemPage extends StatelessWidget {
                                   maxLines: null,
                                   controller: _descController
                                     ..text = snapshot.data!.get('description'),
-                                  hintText: "Item Name"),
+                                  hintText: "Product Description"),
                               const SizedBox(
                                 height: 20,
                               ),
@@ -88,7 +88,7 @@ class EditItemPage extends StatelessWidget {
                                   controller: _priceController
                                     ..text =
                                         snapshot.data!.get('price').toString(),
-                                  hintText: "Item Name")
+                                  hintText: "Product Price")
                             ],
                           )),
                       const SizedBox(
@@ -132,7 +132,7 @@ class EditItemPage extends StatelessWidget {
                           ProductRepository.delete(itemDoc);
                         },
                         child: const Text(
-                          "Delete Item",
+                          "Delete Product",
                           textAlign: TextAlign.center,
                           style: TextStyle(color: Colors.red),
                         ),

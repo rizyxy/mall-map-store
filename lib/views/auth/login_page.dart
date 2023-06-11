@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mallmap_store/controller/authentication_controller.dart';
+import 'package:mallmap_store/services/authentication.dart';
 import 'package:mallmap_store/utils/validator/null_validator.dart';
 import 'package:mallmap_store/widgets/widgets.dart';
 import 'package:provider/provider.dart';
@@ -77,8 +78,13 @@ class LoginPage extends StatelessWidget {
                 if (formState.currentState!.validate()) {
                   Provider.of<AuthenticationController>(context, listen: false)
                       .login(_emailController.text, _passwordController.text)
-                      .then((credential) {
-                    Navigator.pushNamed(context, '/home');
+                      .then((result) {
+                    if (result == AuthResult.success) {
+                      Navigator.pushNamed(context, '/home');
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Login Failed!")));
+                    }
                   });
                 }
               },

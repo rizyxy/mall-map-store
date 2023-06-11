@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:mallmap_store/repository/store_repository.dart';
+import 'package:mallmap_store/utils/validator/auth_validator.dart';
 import 'package:mallmap_store/widgets/layout/main_layout.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -15,6 +16,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _locationController = TextEditingController();
+  final GlobalKey<FormState> _formState = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -53,40 +55,46 @@ class _ProfilePageState extends State<ProfilePage> {
                 builder: ((context, snapshot) {
                   if (snapshot.hasData) {
                     return Form(
+                        key: _formState,
                         child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        const Text("Store Name"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                              isDense: true,
-                              border: _isEditable
-                                  ? const UnderlineInputBorder()
-                                  : InputBorder.none),
-                          controller: _nameController
-                            ..text = snapshot.data!.get('storeName'),
-                        ),
-                        const SizedBox(
-                          height: 30,
-                        ),
-                        const Text("Store Location"),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        TextFormField(
-                          decoration: InputDecoration(
-                              isDense: true,
-                              border: _isEditable
-                                  ? const UnderlineInputBorder()
-                                  : InputBorder.none),
-                          controller: _locationController
-                            ..text = snapshot.data!.get('storeLocation'),
-                        ),
-                      ],
-                    ));
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: <Widget>[
+                            const Text("Store Name"),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              validator: (value) =>
+                                  AuthenticationValidator.validateName(value),
+                              decoration: InputDecoration(
+                                  isDense: true,
+                                  border: _isEditable
+                                      ? const UnderlineInputBorder()
+                                      : InputBorder.none),
+                              controller: _nameController
+                                ..text = snapshot.data!.get('storeName'),
+                            ),
+                            const SizedBox(
+                              height: 30,
+                            ),
+                            const Text("Store Location"),
+                            const SizedBox(
+                              height: 10,
+                            ),
+                            TextFormField(
+                              validator: (value) =>
+                                  AuthenticationValidator.validateLocation(
+                                      value),
+                              decoration: InputDecoration(
+                                  isDense: true,
+                                  border: _isEditable
+                                      ? const UnderlineInputBorder()
+                                      : InputBorder.none),
+                              controller: _locationController
+                                ..text = snapshot.data!.get('storeLocation'),
+                            ),
+                          ],
+                        ));
                   } else {
                     return const Center(child: CircularProgressIndicator());
                   }
@@ -98,18 +106,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: _isEditable
                     ? InkWell(
                         onTap: () async {
-                          StoreRepository.edit(
-                                  FirebaseAuth.instance.currentUser!.uid,
-                                  _nameController.text,
-                                  _locationController.text)
-                              .then((value) {
-                            FirebaseAuth.instance.currentUser!
-                                .updateDisplayName(_nameController.text);
+                          if (_formState.currentState!.validate()) {
+                            StoreRepository.edit(
+                                    FirebaseAuth.instance.currentUser!.uid,
+                                    _nameController.text,
+                                    _locationController.text)
+                                .then((value) {
+                              FirebaseAuth.instance.currentUser!
+                                  .updateDisplayName(_nameController.text);
 
-                            setState(() {
-                              _isEditable = false;
+                              setState(() {
+                                _isEditable = false;
+                              });
                             });
-                          });
+                          }
                         },
                         child: Ink(
                           padding: const EdgeInsets.symmetric(vertical: 13),

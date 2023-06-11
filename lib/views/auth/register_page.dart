@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mallmap_store/controller/authentication_controller.dart';
+import 'package:mallmap_store/services/authentication.dart';
 import 'package:mallmap_store/utils/validator/auth_validator.dart';
 import 'package:mallmap_store/views/auth/login_page.dart';
 import 'package:mallmap_store/widgets/widgets.dart';
@@ -105,12 +106,19 @@ class RegisterPage extends StatelessWidget {
                           _storeLocationController.text,
                           _emailController.text,
                           _passwordController.text)
-                      .then((value) => showDialog(
+                      .then((result) {
+                    if (result == AuthResult.success) {
+                      showDialog(
                           barrierDismissible: true,
                           context: context,
                           builder: (context) {
                             return _buildConfirmationDialog(context);
-                          }));
+                          });
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text("Register Failed!")));
+                    }
+                  });
                 }
               },
               child: Ink(

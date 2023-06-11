@@ -37,6 +37,7 @@ dependencies:
     sdk: flutter
   image_picker: ^0.8.7
   lottie: <=2.4.0
+  mockito: <=5.4.2
   provider: ^6.0.5
   shared_preferences: ^2.1.1
 
